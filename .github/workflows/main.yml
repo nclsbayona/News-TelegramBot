@@ -29,3 +29,4 @@ jobs:
         uses: nclsbayona/Ping-action@1.0.0
         env:
             PING_URL: https://News-TelegramBot.nclsbayona.repl.co
+            HOP_MAX: 4
