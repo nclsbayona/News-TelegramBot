@@ -1,29 +1,32 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Bot Status
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
   schedule:
-    - cron: "*/10 * * * *"
-    
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    - cron: "*/20 * * * *"
+  
 jobs:
-  # This workflow contains a single job called "build"
   status:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-
       - name: Ping URL
         uses: sisodiya2421/pinger@master
         env:
           URL: News-TelegramBot.nclsbayona.repl.co
+          
+  send_notification:
+    name: Notification for Telegram
+    needs: status
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send telegram message for failure
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Dear ${{ secrets.TELEGRAM_TO }} on the repository ${{ github.repository }} the status build is failing, please check repl.it
