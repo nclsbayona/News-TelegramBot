@@ -42,7 +42,7 @@ suscritos = []
 actualSeeker=-1
 
 def existe_nueva(noticias_v, noticias_n):
-  if ((noticias_v is not None and noticias_v is None) or (noticias_n[0] not in noticias_v)):
+  if ((noticias_n is not None and noticias_v is None) or (noticias_n[0] not in noticias_v)):
     return True
   return False
 
