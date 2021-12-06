@@ -1,4 +1,5 @@
 import os, requests, threading, multiprocessing
+from time import sleep
 
 NEWS_API_KEY = os.environ['NEWS_API_KEY']
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
@@ -41,20 +42,21 @@ suscritos = []
 actualSeeker=-1
 
 def existe_nueva(noticias_v, noticias_n):
-  if (noticias_n[0] not in noticias_v):
+  if ((noticias_v is not None and noticias_v is None) or (noticias_n[0] not in noticias_v)):
     return True
   return False
 
 # Esto debe de ejecutarse en un proceso aparte
 def nueva_noticia(noticias, suscritos, func):
   while True:
-    print ("Buscando noticias nuevas :D")
     news=func(NEWS_API_KEY)
-    if (news is not None and existe_nueva(noticias, news)):
+    if (news is not None and (noticias is None or existe_nueva(noticias, news))):
       nueva_noticia=transformar_noticia(news[0])
+      print("Notificar nueva noticia")
       p = multiprocessing.Process(target=notificar_nueva_noticia, args=(suscritos, nueva_noticia))
       p.start()
       noticias=news
+      sleep(10)
 
 # Esto se debe ejecutar en proceso/hilo aparte
 def enviar_noticia(suscriptor, noticia):
@@ -63,10 +65,10 @@ def enviar_noticia(suscriptor, noticia):
 
 # Esto debe ejecutarse en un proceso aparte
 def notificar_nueva_noticia(suscriptores, noticia):
+  print ("Notificando nueva noticia a suscriptores",suscriptores)
   for suscriptor in suscriptores:
     hilo=threading.Thread(target=enviar_noticia, args=(suscriptor, noticia))
     hilo.start()
-    pass
 
 def iniciar_busqueda():
   global actualSeeker, noticias, suscritos, getXataka_GenbetaNews
