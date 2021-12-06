@@ -26,6 +26,6 @@ jobs:
       - name: Ping URL
      # You may pin to the exact commit or the version.
      # uses: nerdify/ping-action@f8e5eb1e44352ccde96dff6c55b0d3e6d21e2325
-        uses: nclsbayona/Ping-action@1.0.0
+        uses: nclsbayona/Ping-action@0.0.1
         env:
             PING_URL: News-TelegramBot.nclsbayona.repl.co
