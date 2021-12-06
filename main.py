@@ -59,6 +59,10 @@ def nueva_noticia(noticias, suscritos, func):
       p = multiprocessing.Process(target=notificar_nueva_noticia, args=(suscritos, nueva_noticia))
       p.start()
       noticias=news
+      try:
+        os.kill(p.pid, SIGSTOP)
+      except:
+        pass
       sleep(10)
 
 # Esto se debe ejecutar en proceso/hilo aparte
@@ -68,7 +72,6 @@ def enviar_noticia(suscriptor, noticia):
 
 # Esto debe ejecutarse en un proceso aparte
 def notificar_nueva_noticia(suscriptores, noticia):
-  print ("Notificando nueva noticia a suscriptores",suscriptores)
   for suscriptor in suscriptores:
     hilo=threading.Thread(target=enviar_noticia, args=(suscriptor, noticia))
     hilo.start()
@@ -91,6 +94,7 @@ def iniciar_busqueda():
 def start(update: Update, context: CallbackContext):
     update.message.reply_text(
         "Bienvenidos al bot de noticias de tecnología de las fuentes Genbeta y Xataka. Este bot está pensado para hispanohablantes"+"🇪🇸")
+    suscribirse(update, context)
 
 def help(update: Update, context: CallbackContext):
     update.message.reply_text("Este bot entiende por el momento dos comandos:")
