@@ -1,8 +1,10 @@
+
 import os, requests, threading, multiprocessing
 from time import sleep
 
 NEWS_API_KEY = os.environ['NEWS_API_KEY']
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
+NEWS_API_KEY2 = os.environ['NEWS_API_KEY2']
 
 from telegram.ext.updater import Updater
 from telegram.update import Update
@@ -49,6 +51,7 @@ def existe_nueva(noticias_v, noticias_n):
 # Esto debe de ejecutarse en un proceso aparte
 def nueva_noticia(noticias, suscritos, func):
   while True:
+    sleep(1080) #Cada 18 min
     news=func(NEWS_API_KEY)
     if (news is not None and (noticias is None or existe_nueva(noticias, news))):
       nueva_noticia=transformar_noticia(news[0])
@@ -60,7 +63,7 @@ def nueva_noticia(noticias, suscritos, func):
 
 # Esto se debe ejecutar en proceso/hilo aparte
 def enviar_noticia(suscriptor, noticia):
-  print ("Noticia enviada a "+suscriptor[0].message.from_user)
+  print ("Noticia enviada a "+suscriptor[0].message.from_user.username)
   suscriptor[0].message.reply_text(noticia)
 
 # Esto debe ejecutarse en un proceso aparte
@@ -116,7 +119,7 @@ def suscribirse(update: Update, context: CallbackContext):
     update.message.reply_text("Ya se encuentra suscrito 🦾🦾🦾")
 
 def nueva(update: Update, context: CallbackContext):
-    update.message.reply_text(transformar_noticia(getXataka_GenbetaNews(NEWS_API_KEY, latest=True)))
+    update.message.reply_text(transformar_noticia(getXataka_GenbetaNews(NEWS_API_KEY2, latest=True)))
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', help))
