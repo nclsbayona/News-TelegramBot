@@ -89,6 +89,7 @@ def enviar_noticia(suscriptor, noticia):
 
 # Esto debe ejecutarse en un proceso aparte
 def notificar_nueva_noticia(suscriptores, noticia):
+  print ("Debo de enviar noticia")
   for suscriptor in suscriptores:
     hilo=threading.Thread(target=enviar_noticia, args=(suscriptores[suscriptor], noticia))
     hilo.start()
@@ -130,13 +131,17 @@ def in_suscritos(username):
   return False
 
 def suscribirse(update: Update, context: CallbackContext):
-  global suscritos, db
+  global suscritos
   username=deepcopy(update.message.from_user.username)
-  chat_id=deepcopy(update.message.chat_id)
   if (not in_suscritos(username)):
+    chat_id=deepcopy(update.message.chat_id)
+    global db, noticias
     suscritos[username]=copy(chat_id)
     db[username]=copy(chat_id)    
     update.message.reply_text("Suscrito con éxito ✌️✌️✌️")
+    update.message.reply_text("Noticias hasta ahora️")
+    for noticia in noticias:
+      enviar_noticia(chat_id, transformar_noticia(noticia))
     iniciar_busqueda()
   else:
     update.message.reply_text("Ya se encuentra suscrito 🦾🦾🦾")
