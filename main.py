@@ -27,22 +27,6 @@ def getXataka_GenbetaNews(api_key: str, latest=False):
         the_news = the_news[0]
     return the_news
 
-NEWS_API_KEY = os.environ['NEWS_API_KEY']
-NEWS_API_KEY2 = os.environ['NEWS_API_KEY2']
-NEWS_API_KEY3 = os.environ['NEWS_API_KEY3']
-NEWS_API_KEY4 = os.environ['NEWS_API_KEY4']
-NEWS_API_KEY5 = os.environ['NEWS_API_KEY5']
-NEWS_API_KEY6 = os.environ['NEWS_API_KEY6']
-NEWS_API_KEY7 = os.environ['NEWS_API_KEY7']
-TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
-keys=[NEWS_API_KEY2, NEWS_API_KEY3, NEWS_API_KEY4,NEWS_API_KEY5,NEWS_API_KEY6,NEWS_API_KEY7]
-cont=0
-updater = Updater(token=TELEGRAM_BOT_TOKEN)
-noticias=getXataka_GenbetaNews(NEWS_API_KEY)
-suscritos = fetch_suscritos()
-actualSeeker=-1
-iniciar_busqueda()
-
 def incrementar_cont():
   global cont, keys
   cont+=1
@@ -70,7 +54,7 @@ def existe_nueva(noticias_v, noticias_n):
 # Esto debe de ejecutarse en un proceso aparte
 def nueva_noticia(noticias, suscritos, func):
   while True:
-    sleep(900) #Cada 15 min
+    sleep(600) #Cada 10 min
     news=func(keys[cont])
     incrementar_cont()
     if (news is not None and (noticias is None or existe_nueva(noticias, news))):
@@ -98,7 +82,8 @@ def notificar_nueva_noticia(suscriptores, noticia):
 def iniciar_busqueda():
   global actualSeeker, noticias, suscritos, getXataka_GenbetaNews
   try:
-    os.kill(actualSeeker, SIGSTOP)
+    if (actualSeeker!=-1):
+      os.kill(actualSeeker, SIGSTOP)
   except:
     pass
   finally:
@@ -163,13 +148,27 @@ def suscribirse(update: Update, context: CallbackContext):
 def nueva(update: Update, context: CallbackContext):
     update.message.reply_text(transformar_noticia(getXataka_GenbetaNews(NEWS_API_KEY, latest=True)))
 
+NEWS_API_KEY = os.environ['NEWS_API_KEY']
+NEWS_API_KEY2 = os.environ['NEWS_API_KEY2']
+NEWS_API_KEY3 = os.environ['NEWS_API_KEY3']
+NEWS_API_KEY4 = os.environ['NEWS_API_KEY4']
+NEWS_API_KEY5 = os.environ['NEWS_API_KEY5']
+NEWS_API_KEY6 = os.environ['NEWS_API_KEY6']
+NEWS_API_KEY7 = os.environ['NEWS_API_KEY7']
+TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
+keys=[NEWS_API_KEY2, NEWS_API_KEY3, NEWS_API_KEY4,NEWS_API_KEY5,NEWS_API_KEY6,NEWS_API_KEY7]
+cont=0
+updater = Updater(token=TELEGRAM_BOT_TOKEN)
+noticias=getXataka_GenbetaNews(NEWS_API_KEY)
+suscritos = fetch_suscritos()
+actualSeeker=-1
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', help))
 updater.dispatcher.add_handler(CommandHandler('suscribirse', suscribirse))
 updater.dispatcher.add_handler(CommandHandler('nueva', nueva))
 updater.dispatcher.add_handler(CommandHandler('ver', ver))
-
 updater.start_polling()
 print ("Bot alive")
+iniciar_busqueda()
 from keep_alive import keep_alive
 keep_alive()
