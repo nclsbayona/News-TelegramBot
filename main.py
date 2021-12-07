@@ -131,7 +131,7 @@ def in_suscritos(username):
   return False
 
 def suscribirse(update: Update, context: CallbackContext):
-  global suscritos
+  global suscritos, SIGSTOP
   username=deepcopy(update.message.from_user.username)
   if (not in_suscritos(username)):
     chat_id=deepcopy(update.message.chat_id)
@@ -145,6 +145,12 @@ def suscribirse(update: Update, context: CallbackContext):
     iniciar_busqueda()
   else:
     update.message.reply_text("Ya se encuentra suscrito 🦾🦾🦾")
+
+  try:
+    if (actualSeeker==-1):
+      iniciar_busqueda()
+  except:
+    pass
 
 def nueva(update: Update, context: CallbackContext):
     update.message.reply_text(transformar_noticia(getXataka_GenbetaNews(NEWS_API_KEY, latest=True)))
