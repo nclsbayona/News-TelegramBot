@@ -29,8 +29,13 @@ def getXataka_GenbetaNews(api_key: str, latest=False):
 
 NEWS_API_KEY = os.environ['NEWS_API_KEY']
 NEWS_API_KEY2 = os.environ['NEWS_API_KEY2']
+NEWS_API_KEY3 = os.environ['NEWS_API_KEY3']
+NEWS_API_KEY4 = os.environ['NEWS_API_KEY4']
+NEWS_API_KEY5 = os.environ['NEWS_API_KEY5']
+NEWS_API_KEY6 = os.environ['NEWS_API_KEY6']
+NEWS_API_KEY7 = os.environ['NEWS_API_KEY7']
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
-keys=[NEWS_API_KEY2]
+keys=[NEWS_API_KEY2, NEWS_API_KEY3, NEWS_API_KEY4,NEWS_API_KEY5,NEWS_API_KEY6,NEWS_API_KEY7]
 cont=0
 updater = Updater(token=TELEGRAM_BOT_TOKEN)
 noticias=getXataka_GenbetaNews(NEWS_API_KEY)
@@ -64,7 +69,7 @@ def existe_nueva(noticias_v, noticias_n):
 # Esto debe de ejecutarse en un proceso aparte
 def nueva_noticia(noticias, suscritos, func):
   while True:
-    sleep(1080) #Cada 18 min
+    sleep(900) #Cada 15 min
     news=func(keys[cont])
     incrementar_cont()
     if (news is not None and (noticias is None or existe_nueva(noticias, news))):
