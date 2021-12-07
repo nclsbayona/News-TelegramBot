@@ -1,16 +1,19 @@
 
 import os, requests, threading, multiprocessing
 from time import sleep
-
-NEWS_API_KEY = os.environ['NEWS_API_KEY']
-TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
-NEWS_API_KEY2 = os.environ['NEWS_API_KEY2']
-
+from replit import db
 from telegram.ext.updater import Updater
 from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
 from telegram.ext.commandhandler import CommandHandler
 from signal import SIGSTOP
+from copy import copy
+
+def fetch_suscritos():
+  suscritos=dict()
+  for key in db:
+    suscritos[key]=db[key]
+  return suscritos
 
 def getXataka_GenbetaNews(api_key: str, latest=False):
     the_news = requests.get(
@@ -23,6 +26,21 @@ def getXataka_GenbetaNews(api_key: str, latest=False):
     if (latest and the_news is not None):
         the_news = the_news[0]
     return the_news
+
+NEWS_API_KEY = os.environ['NEWS_API_KEY']
+NEWS_API_KEY2 = os.environ['NEWS_API_KEY2']
+TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
+keys=[NEWS_API_KEY2]
+cont=0
+updater = Updater(token=TELEGRAM_BOT_TOKEN)
+noticias=getXataka_GenbetaNews(NEWS_API_KEY)
+suscritos = fetch_suscritos()
+actualSeeker=-1
+
+def incrementar_cont():
+  global cont, keys
+  cont+=1
+  cont%=len(keys)
 
 def transformar_noticia(article):
   ret="\n"
@@ -38,11 +56,6 @@ def transformar_noticia(article):
     pass
   return ret
 
-updater = Updater(token=TELEGRAM_BOT_TOKEN)
-noticias=getXataka_GenbetaNews(NEWS_API_KEY)
-suscritos = []
-actualSeeker=-1
-
 def existe_nueva(noticias_v, noticias_n):
   if ((noticias_n is not None and noticias_v is None) or (noticias_n[0] not in noticias_v)):
     return True
@@ -52,10 +65,10 @@ def existe_nueva(noticias_v, noticias_n):
 def nueva_noticia(noticias, suscritos, func):
   while True:
     sleep(1080) #Cada 18 min
-    news=func(NEWS_API_KEY)
+    news=func(keys[cont])
+    incrementar_cont()
     if (news is not None and (noticias is None or existe_nueva(noticias, news))):
       nueva_noticia=transformar_noticia(news[0])
-      print("Notificar nueva noticia")
       p = multiprocessing.Process(target=notificar_nueva_noticia, args=(suscritos, nueva_noticia))
       p.start()
       noticias=news
@@ -63,12 +76,11 @@ def nueva_noticia(noticias, suscritos, func):
         os.kill(p.pid, SIGSTOP)
       except:
         pass
-      sleep(10)
 
 # Esto se debe ejecutar en proceso/hilo aparte
 def enviar_noticia(suscriptor, noticia):
-  print ("Noticia enviada a "+suscriptor[0].message.from_user.username)
-  suscriptor[0].message.reply_text(noticia)
+  global suscritos
+  suscritos[suscriptor][0].message.reply_text(noticia)
 
 # Esto debe ejecutarse en un proceso aparte
 def notificar_nueva_noticia(suscriptores, noticia):
@@ -108,22 +120,23 @@ def help(update: Update, context: CallbackContext):
 def in_suscritos(id):
   global suscritos
   for suscriptor in (suscritos):
-    if (suscriptor[0].message.chat.id==id):
+    if (suscritos[suscriptor][0].message.chat.id==id):
       return True
   return False
 
 def suscribirse(update: Update, context: CallbackContext):
   global suscritos
-  tup=(update, context)
   if (not in_suscritos(update.message.chat.id)):
-    suscritos.append(tup)
+    username=copy(update.message.from_user.username)
+    db[username]=copy(update)
+    suscritos[username]=copy(update)
     update.message.reply_text("Suscrito con éxito ✌️✌️✌️")
     iniciar_busqueda()
   else:
     update.message.reply_text("Ya se encuentra suscrito 🦾🦾🦾")
 
 def nueva(update: Update, context: CallbackContext):
-    update.message.reply_text(transformar_noticia(getXataka_GenbetaNews(NEWS_API_KEY2, latest=True)))
+    update.message.reply_text(transformar_noticia(getXataka_GenbetaNews(NEWS_API_KEY, latest=True)))
 
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', help))
