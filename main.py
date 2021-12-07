@@ -41,6 +41,7 @@ updater = Updater(token=TELEGRAM_BOT_TOKEN)
 noticias=getXataka_GenbetaNews(NEWS_API_KEY)
 suscritos = fetch_suscritos()
 actualSeeker=-1
+iniciar_busqueda()
 
 def incrementar_cont():
   global cont, keys
