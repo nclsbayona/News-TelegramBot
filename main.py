@@ -115,13 +115,21 @@ def start(update: Update, context: CallbackContext):
     suscribirse(update, context)
 
 def help(update: Update, context: CallbackContext):
-    update.message.reply_text("Este bot entiende por el momento dos comandos:")
+    update.message.reply_text("Este bot entiende por el momento tres comandos:")
     update.message.reply_text(
         "1. suscribirse --> Este comando suscribe al usuario a la lista de usuarios que reciben una actualización de noticias cada cierto tiempo"
     )
     update.message.reply_text(
         "2. nueva --> Este comando envia al usuario la noticia más reciente que encuentre en las fuentes previamente mencionadas"
     )
+    update.message.reply_text(
+        "3. ver --> Este comando envia al usuario las noticias que hasta el momento se encuentren en las fuentes previamente mencionadas"
+    )
+
+def ver(update:Update, context: CallbackContext):
+  chat_id=update.message.chat_id
+  for noticia in noticias:
+      enviar_noticia(chat_id, transformar_noticia(noticia))
 
 def in_suscritos(username):
   global suscritos
@@ -145,7 +153,6 @@ def suscribirse(update: Update, context: CallbackContext):
     iniciar_busqueda()
   else:
     update.message.reply_text("Ya se encuentra suscrito 🦾🦾🦾")
-
   try:
     if (actualSeeker==-1):
       iniciar_busqueda()
@@ -159,6 +166,7 @@ updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', help))
 updater.dispatcher.add_handler(CommandHandler('suscribirse', suscribirse))
 updater.dispatcher.add_handler(CommandHandler('nueva', nueva))
+updater.dispatcher.add_handler(CommandHandler('ver', ver))
 
 updater.start_polling()
 print ("Bot alive")
