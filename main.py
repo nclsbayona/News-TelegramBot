@@ -7,7 +7,7 @@ from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
 from telegram.ext.commandhandler import CommandHandler
 from signal import SIGSTOP
-from copy import copy
+from copy import deepcopy, copy
 
 def fetch_suscritos():
   suscritos=dict()
@@ -117,19 +117,19 @@ def help(update: Update, context: CallbackContext):
         "2. nueva --> Este comando envia al usuario la noticia más reciente que encuentre en las fuentes previamente mencionadas"
     )
 
-def in_suscritos(id):
+def in_suscritos(username):
   global suscritos
   for suscriptor in (suscritos):
-    if (suscritos[suscriptor][0].message.chat.id==id):
+    if (suscriptor==username):
       return True
   return False
 
 def suscribirse(update: Update, context: CallbackContext):
-  global suscritos
-  if (not in_suscritos(update.message.chat.id)):
-    username=copy(update.message.from_user.username)
-    db[username]=copy(update)
+  global suscritos, db
+  username=deepcopy(update.message.from_user.username)
+  if (not in_suscritos(username)):
     suscritos[username]=copy(update)
+    db=suscritos
     update.message.reply_text("Suscrito con éxito ✌️✌️✌️")
     iniciar_busqueda()
   else:
