@@ -79,13 +79,13 @@ def nueva_noticia(noticias, suscritos, func):
 
 # Esto se debe ejecutar en proceso/hilo aparte
 def enviar_noticia(suscriptor, noticia):
-  global suscritos
-  suscritos[suscriptor][0].message.reply_text(noticia)
+  global updater
+  updater.bot.send_message(chat_id=suscriptor, text=noticia)
 
 # Esto debe ejecutarse en un proceso aparte
 def notificar_nueva_noticia(suscriptores, noticia):
   for suscriptor in suscriptores:
-    hilo=threading.Thread(target=enviar_noticia, args=(suscriptor, noticia))
+    hilo=threading.Thread(target=enviar_noticia, args=(suscriptores[suscriptor], noticia))
     hilo.start()
 
 def iniciar_busqueda():
@@ -127,9 +127,10 @@ def in_suscritos(username):
 def suscribirse(update: Update, context: CallbackContext):
   global suscritos, db
   username=deepcopy(update.message.from_user.username)
+  chat_id=deepcopy(update.message.chat_id)
   if (not in_suscritos(username)):
-    suscritos[username]=copy(update)
-    db=suscritos
+    suscritos[username]=copy(chat_id)
+    db[username]=copy(chat_id)    
     update.message.reply_text("Suscrito con éxito ✌️✌️✌️")
     iniciar_busqueda()
   else:
@@ -142,6 +143,7 @@ updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('help', help))
 updater.dispatcher.add_handler(CommandHandler('suscribirse', suscribirse))
 updater.dispatcher.add_handler(CommandHandler('nueva', nueva))
+
 updater.start_polling()
 print ("Bot alive")
 from keep_alive import keep_alive
