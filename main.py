@@ -68,8 +68,9 @@ def nueva_noticia(noticias, suscritos, func):
     news=func(keys[cont])
     incrementar_cont()
     p = multiprocessing.Process(target=
-    existe_nueva, args=(noticias, news, suscritos))
+    existe_nueva, args=(noticias.copy(), news.copy(), suscritos))
     p.start()
+    del noticias
     noticias=news
       
 # Esto se debe ejecutar en proceso/hilo aparte
