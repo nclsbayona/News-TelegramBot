@@ -1,5 +1,6 @@
 import os, requests, threading, multiprocessing
 from time import sleep
+from random import randint
 from replit import db
 from telegram.ext.updater import Updater
 from telegram.update import Update
@@ -62,14 +63,13 @@ def existe_nueva(noticias_v, noticias_n, suscritos):
 # Esto debe de ejecutarse en un proceso aparte
 def nueva_noticia(noticias, suscritos, func):
   while True:
-    sleep(120) #Cada 2 min
+    sleep(300) #Cada 5 min
     print("Buscar noticias...")
     news=func(keys[cont])
     incrementar_cont()
     p = multiprocessing.Process(target=
     existe_nueva, args=(noticias, news, suscritos))
     p.start()
-  
     noticias=news
       
 # Esto se debe ejecutar en proceso/hilo aparte
@@ -166,9 +166,10 @@ NEWS_API_KEY9 = os.environ['NEWS_API_KEY9']
 NEWS_API_KEY10 = os.environ['NEWS_API_KEY10']
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
 keys=[NEWS_API_KEY, NEWS_API_KEY2, NEWS_API_KEY3, NEWS_API_KEY4, NEWS_API_KEY5,NEWS_API_KEY6, NEWS_API_KEY7, NEWS_API_KEY8, NEWS_API_KEY9, NEWS_API_KEY10]
-cont=0
+cont=randint(0, len(keys)-1)
 updater = Updater(token=TELEGRAM_BOT_TOKEN)
-noticias=getXataka_GenbetaNews(NEWS_API_KEY)
+noticias=getXataka_GenbetaNews(keys[cont])
+incrementar_cont()
 suscritos = fetch_suscritos()
 actualSeeker=-1
 updater.dispatcher.add_handler(CommandHandler('start', start))
